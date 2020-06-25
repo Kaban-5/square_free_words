@@ -1,53 +1,45 @@
-#include <bits/stdc++.h>
-using namespace std;
+void calc_number_of_states(int32_t l, int32_t r, int32_t depth, const vector<string> &dictionary, int &states_needed)
+{
+	if (l == r)
+		return;
 
-void calc_number_of_states (int l, int r, int depth, const vector<string> &dictionary, int &ans) {
-    if (l == r)
-        return;
+	states_needed++;
+	if (int32_t(dictionary[l].size()) == depth)
+		l++;
 
-    ans++;
-    if (int(dictionary[l].size()) == depth)
-        l++;
+	if (l == r)
+		return;
 
-    if (l == r)
-        return;
+	array<int32_t, 4> where = {l, r, r, r};
 
-    int where[4];
-    where[0] = l;
-    fill(where + 1, where + 4, r);
+	int32_t ptr = 1;
+	for (int32_t i = l; i < r; i++)
+	{
+		while (dictionary[i][depth] > 'a' + (ptr - 1))
+			where[ptr++] = i;
+	}
 
-    int ptr = 1;
-    for (int i = l; i < r; i++)
-    {
-        while (dictionary[i][depth] > 'a' + (ptr - 1))
-            where[ptr++] = i;
-    }
-
-    for (int i = 0; i < 3; i++)
-        calc_number_of_states(where[i], where[i + 1], depth + 1, dictionary, ans);
+	for (int32_t i = 0; i < 3; i++)
+		calc_number_of_states(where[i], where[i + 1], depth + 1, dictionary, states_needed);
 }
 
-int main() {
-    ios_base::sync_with_stdio(false);
-    cin.tie(nullptr);
+void print_the_number_of_states()
+{
+	ifstream in(dictionary_address);
+	ofstream out(state_count_address);
 
-    ifstream fin("../dictionary.txt");
-    ofstream fout("../state_count.txt");
+	vector<string> dictionary;
+	string word;
+	while (in >> word)
+	{
+		if (int(word.size()) <= trie_word_length)
+			dictionary.push_back(word + word);
+	}
 
-    vector<string> dictionary;
-    string s;
-    while (fin >> s)
-    {
-        if (int(s.size()) <= trie_word_length)
-            dictionary.push_back(s + s);
-    }
+	int32_t states_needed = 0;
+	sort(dictionary.begin(), dictionary.end());
+	calc_number_of_states(0, int(dictionary.size()), 0, dictionary, states_needed);
 
-    int ans = 0;
-    sort(dictionary.begin(), dictionary.end());
-    calc_number_of_states(0, int(dictionary.size()), 0, dictionary, ans);
-
-    fout << "need states = " << ans << endl;
-    cout << ans << endl;
-
-    return 0;
+	cerr << states_needed << " states in the trie." << endl;
+	out << states_needed << endl;
 }
