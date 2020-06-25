@@ -1,7 +1,3 @@
-#ifdef LOCAL
-//#define _GLIBCXX_DEBUG
-#endif
-
 /// Warning: little-to-nothing is guaranteed in the case the code crashes or is forcefully terminated.
 /// Of course, it won't break your system, but the workflow of the code is pretty delicate.
 /// I will try to make the problem less extreme.
@@ -9,8 +5,12 @@
 /// It is recommended to have a backup of dictionary file in case that something goes awry.
 /// Generating the dictionary takes most of the program runtime.
 /// Calculating the answers uses the most memory among all three blocks.
-
-#include <bits/stdc++.h>
+#include <algorithm>
+#include <fstream>
+#include <iomanip>
+#include <iostream>
+#include <string>
+#include <vector>
 using namespace std;
 
 constexpr int32_t correct_answer_length = 121;

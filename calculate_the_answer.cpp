@@ -135,7 +135,8 @@ void dp_calculation(const trie &trie)
 		reverse(word.begin(), word.end());
 		const int32_t start_state = trie.simulate(word);
 		reverse(word.begin(), word.end());
-		assert(!bad[finish_state] && !bad[start_state]);
+		if (bad[finish_state] || bad[start_state])
+			throw std::runtime_error("The word is not good, but somehow is in the dictionary.");
 
 		for (int32_t length = 2 * int32_t(word.size()); length <= correct_answer_length; length++)
 		{
