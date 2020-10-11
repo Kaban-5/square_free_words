@@ -23,13 +23,14 @@ void calc_number_of_states(int32_t l, int32_t r, int32_t depth, const vector<str
 		calc_number_of_states(where[i], where[i + 1], depth + 1, dictionary, states_needed);
 }
 
-void print_the_number_of_states()
+int32_t print_the_number_of_states()
 {
 	ifstream in(dictionary_address);
-	ofstream out(state_count_address);
 
 	vector<string> dictionary;
 	string word;
+
+	ignore_int(in);
 	while (in >> word)
 	{
 		if (int(word.size()) <= trie_word_length)
@@ -41,5 +42,5 @@ void print_the_number_of_states()
 	calc_number_of_states(0, int(dictionary.size()), 0, dictionary, states_needed);
 
 	cerr << states_needed << " states in the trie." << endl;
-	out << states_needed << endl;
+	return states_needed;
 }

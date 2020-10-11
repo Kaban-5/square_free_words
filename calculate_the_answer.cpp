@@ -1,89 +1,6 @@
-struct trie
-{
-	int32_t free_node, max_states;
-	vector<bool> is_bad_state;
-	vector<array<int32_t, 3>> transitions;
-
-	void create_node()
-	{
-		if (free_node >= max_states)
-			throw std::runtime_error("Attempted to create too many states.");
-
-		for (int32_t i = 0; i < 3; i++)
-			transitions[free_node][i] = -1;
-		free_node++;
-	}
-
-	trie(const int max_states_parameter)
-	{
-		max_states = max_states_parameter;
-		is_bad_state.assign(max_states, false);
-		transitions.resize(max_states);
-
-		free_node = 0;
-		create_node();
-	}
-
-	void add_word(const string &s)
-	{
-		int32_t v = 0;
-		for (char ch : s)
-		{
-			if (transitions[v][ch - 'a'] == -1)
-			{
-				transitions[v][ch - 'a'] = free_node;
-				create_node();
-			}
-
-			v = transitions[v][ch - 'a'];
-		}
-
-		is_bad_state[v] = true;
-	}
-
-	void build()
-	{
-		if (free_node != max_states)
-			throw std::runtime_error("Number of states was computed incorrectly.");
-
-		vector<int32_t> link(max_states, -1);
-
-		vector<int32_t> q;
-		q.reserve(max_states);
-		q.push_back(0);
-		link[0] = 0;
-
-		for (int32_t ptr = 0; ptr < int32_t(q.size()); ptr++)
-		{
-			const int32_t cur = q[ptr];
-
-			for (int32_t c = 0; c < 3; c++)
-			{
-				int &dest = transitions[cur][c];
-				if (dest == -1)
-					dest = (cur == 0 ? 0 : transitions[link[cur]][c]);
-
-				if (link[dest] == -1)
-				{
-					q.push_back(dest);
-					link[dest] = (cur == 0 ? 0 : transitions[link[cur]][c]);
-				}
-			}
-		}
-	}
-
-	int32_t simulate(const string &s) const
-	{
-		int32_t state = 0;
-		for (char ch : s)
-			state = transitions[state][ch - 'a'];
-		return state;
-	}
-};
-
 void dp_calculation(const trie &trie)
 {
-	const int32_t states = trie.max_states;
+	const int32_t states = trie.final_number_of_states;
 	const auto &bad = trie.is_bad_state;
 	const auto &transitions = trie.transitions;
 
@@ -131,9 +48,9 @@ void dp_calculation(const trie &trie)
 		if (s_length <= trie_word_length || s_length > tandem_word_length)
 			continue;
 
-		const int32_t finish_state = trie.simulate(word);
+		const int32_t finish_state = trie.simulate<1>(word);
 		reverse(word.begin(), word.end());
-		const int32_t start_state = trie.simulate(word);
+		const int32_t start_state = trie.simulate<1>(word);
 		reverse(word.begin(), word.end());
 		if (bad[finish_state] || bad[start_state])
 			throw std::runtime_error("The word is not good, but somehow is in the dictionary.");
@@ -153,7 +70,7 @@ void dp_calculation(const trie &trie)
 					}
 				}
 
-				const int32_t right_multiplier = dp[length - start - 2 * int32_t(word.size())][finish_state];
+				const int64_t right_multiplier = dp[length - start - 2 * int32_t(word.size())][finish_state];
 				answer[length] -= left_multiplier * right_multiplier;
 			}
 		}
